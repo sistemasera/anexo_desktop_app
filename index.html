@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/logo-icon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      const cspConnectSrc = `ws://${process.env.API_IP_PORT} *;`;
+
+      const cspMeta = document.createElement('meta');
+      cspMeta.setAttribute('http-equiv', 'Content-Security-Policy');
+      cspMeta.setAttribute(
+        'content',
+        `default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; connect-src ${cspConnectSrc}`
+      );
+      document.head.appendChild(cspMeta);
+    </script>
+   <!-- <meta http-equiv="Content-Security-Policy" content=" connect-src ws://localhost:5173 http://192.168.1.249:2500 *;"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ANEXOS ERA</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

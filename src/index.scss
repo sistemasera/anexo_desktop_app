@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.anexos-container {
+  margin: 0 auto;
+  max-width: min(90%, 1000px);
+}
