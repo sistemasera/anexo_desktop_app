@@ -1,8 +1,11 @@
-import { app, BrowserWindow, shell, ipcMain, Menu, session } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, Menu, ipcRenderer, dialog } from 'electron'
 import { release } from 'node:os'
 import path from 'node:path'
 import { update } from './update'
 import Store from 'electron-store';
+import {
+  autoUpdater
+} from 'electron-updater'
 
 // The built directory structure
 //
@@ -46,6 +49,8 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'ERA ANEXOS',
     icon: path.join(process.env.PUBLIC, 'logo-icon.ico'),
+    width: 800,
+    height: 600,
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -78,7 +83,7 @@ async function createWindow() {
 
 
   // Apply electron-updater
-  update(win)
+  update(win, dialog)
 }
 
 app.whenReady().then(() => {
@@ -86,6 +91,8 @@ app.whenReady().then(() => {
 
   const menu = Menu.buildFromTemplate([]);
   Menu.setApplicationMenu(menu);
+
+  autoUpdater.checkForUpdates()
 })
 
 app.on('window-all-closed', () => {

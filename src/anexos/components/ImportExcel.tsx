@@ -4,6 +4,7 @@ import { AnexoServices } from '../services/anexo.service'
 import AnexosPageContext from '../hooks/anexosContext'
 import Modal from '@/shared/components/Modal'
 import { toast } from 'react-toastify'
+import Button from '@/shared/components/Button'
 
 interface ImportExcelProps {
   isOpen: boolean
@@ -78,8 +79,8 @@ const ImportExcel = ({ isOpen, close }: ImportExcelProps): ReactElement => {
           </div>
 
           <div className='mt-5 flex gap-3 justify-center'>
-            <button className='bg-black text-white px-5 py-1 rounded-lg text-lg' type='button' onClick={close}>Cancel</button>
-            <button className={'relative bg-red text-white px-5 py-1 rounded-lg text-lg'} type='submit'>Submit</button>
+            <Button color='secondary' onClick={close}>Cancel</Button>
+            <Button color='primary' type='submit'>Submit</Button>
           </div>
         </form>
       </div>

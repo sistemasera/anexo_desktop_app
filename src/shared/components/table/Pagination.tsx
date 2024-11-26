@@ -67,7 +67,7 @@ const Pagination = ({ pagination }: PaginationProps): ReactElement => {
           {
             buttons.map(({ disabled, icon, onClick }, i) => (
               <button key={i}
-                className={`${paginationButtonStyle} ${disabled ? 'bg-red' : 'bg-red-dark cursor-default'}`}
+                className={`${paginationButtonStyle} ${disabled ? 'bg-blue-dark' : 'bg-black cursor-default'}`}
                 onClick={onClick} disabled={!disabled}>
                 {icon}
               </button>

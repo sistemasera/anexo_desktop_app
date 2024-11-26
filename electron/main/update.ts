@@ -5,18 +5,30 @@ import {
   autoUpdater
 } from 'electron-updater'
 
-export function update(win: Electron.BrowserWindow) {
+export function update(win: Electron.BrowserWindow, dialog: Electron.Dialog) {
 
   // When set to false, the update download will be triggered through the API
   autoUpdater.autoDownload = false
-  autoUpdater.disableWebInstaller = false
-  autoUpdater.allowDowngrade = false
+  autoUpdater.autoInstallOnAppQuit = true
 
   // start check
-  autoUpdater.on('checking-for-update', function () { })
+  autoUpdater.on('checking-for-update', function () {})
   // update available
-  autoUpdater.on('update-available', (arg) => {
-    win.webContents.send('update-can-available', { update: true, version: app.getVersion(), newVersion: arg?.version })
+  autoUpdater.on('update-available', (info) => {
+    const { releaseName, releaseNotes, version} = info
+    const dialogOpts = {
+      type: "info",
+      buttons: ["Actualizar", "Postergar"],
+      title: "Actualización disponible",
+      message: `Nueva versión ${releaseName} disponible`,
+      detail: "Hay una nueva versión disponible, ¿desea actualizar ahora?"
+    }
+
+    dialog.showMessageBox(dialogOpts).then((returnValue) => {
+      if (returnValue.response === 0) autoUpdater.quitAndInstall()
+    });
+
+    win.webContents.send('update-can-available', { update: true, version: app.getVersion(), newVersion: version })
   })
   // update not available
   autoUpdater.on('update-not-available', (arg) => {
@@ -25,11 +37,6 @@ export function update(win: Electron.BrowserWindow) {
 
   // Checking for updates
   ipcMain.handle('check-update', async () => {
-    if (!app.isPackaged) {
-      const error = new Error('The update feature is only available after the package.')
-      return { message: error.message, error }
-    }
-
     try {
       return await autoUpdater.checkForUpdatesAndNotify()
     } catch (error) {

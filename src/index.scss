@@ -7,3 +7,22 @@
   margin: 0 auto;
   max-width: min(90%, 1000px);
 }
+
+@keyframes zoom-in-out {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-zoom {
+  animation-name: zoom-in-out;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}

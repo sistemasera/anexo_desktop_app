@@ -12,11 +12,17 @@ import AnexosPageContext, { type FormSubmitAction } from '@/anexos/hooks/anexosC
 import anexosReducer from '../hooks/anexosReducer'
 import ImportExcel from '../components/ImportExcel'
 import Toast from '@/shared/components/Toast'
-import { toast } from 'react-toastify'
+import { AnexosExcelService } from '../services/excel.service'
+import DeleteModal from './DeleteModal'
 
 const TOAST_ID = 'anexos'
 
-const AnexosPage = (): ReactElement => {
+interface AnexosPageProps {
+  isLoading: boolean
+  setIsLoadingOff: (isLoading: boolean) => void
+}
+
+const AnexosPage = ({ isLoading, setIsLoadingOff }: AnexosPageProps): ReactElement => {
   const authenticated = useSelector(isAuthenticated)
   const [anexos, dispatch] = useReducer(anexosReducer, [])
   const [showFilters, setShowFilters] = useState<boolean>(true)
@@ -28,19 +34,26 @@ const AnexosPage = (): ReactElement => {
   const [selectedAnexo, setSelectedAnexo] = useState<Anexo | null>(null)
 
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [isExcelLoading, setIsExcelLoading] = useState<boolean>(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     updateAnexos()
   }, [])
 
   const updateAnexos = (): void => {
+    setIsLoadingOff(false)
     setIsRefreshing(true)
     const anexosService = new AnexoServices()
     void anexosService.getAll()
       .then(response => {
         dispatch({ type: 'set', payload: response })
       })
+      .catch((error) => {
+        console.log(error)
+      })
       .finally(() => {
+        setIsLoadingOff(true)
         setIsRefreshing(false)
       })
   }
@@ -51,6 +64,10 @@ const AnexosPage = (): ReactElement => {
 
   const toggleAnexoModal = (): void => {
     setShowAnexoModal(!showAnexoModal)
+  }
+
+  const toggleDeleteModal = (): void => {
+    setIsDeleteModalOpen(!isDeleteModalOpen)
   }
 
   const add = (): void => {
@@ -69,20 +86,8 @@ const AnexosPage = (): ReactElement => {
   }
 
   const remove = (anexo: Anexo): void => {
-    const result = confirm(`Estás seguro que quieres eliminar el anexo de ${anexo.name} ${anexo.lastName}`)
-    if (!result) return
-
-    const anexosService = new AnexoServices()
-    const id = anexo.id
-    void anexosService.remove(id)
-      .then(() => {
-        dispatch({ type: 'delete', payload: anexo.id })
-        toast('Anexo eliminado correctamente', { toastId: TOAST_ID, type: 'success' })
-      })
-      .catch((error) => {
-        const { message } = error.data
-        toast(message, { toastId: TOAST_ID, type: 'error' })
-      })
+    setSelectedAnexo(anexo)
+    setIsDeleteModalOpen(true)
   }
 
   const ANEXO_COLUMNS: Array<Column<Anexo>> = [
@@ -109,7 +114,7 @@ const AnexosPage = (): ReactElement => {
     }
   ]
 
-  const ANEXO_PAGINATION = [5, 10, 15, 20]
+  // const ANEXO_PAGINATION = [5, 10, 15, 20]
 
   const ANEXO_ACTIONS = useMemo(() => {
     const actions: Array<Action<Anexo>> = [
@@ -126,6 +131,15 @@ const AnexosPage = (): ReactElement => {
     return authenticated ? actions : undefined
   }, [authenticated])
 
+  const exportExcel = (): void => {
+    setIsExcelLoading(true)
+    const anexosExcelService = new AnexosExcelService()
+    void anexosExcelService.exportExcel()
+      .then(() => {
+        setIsExcelLoading(false)
+      })
+  }
+
   return (
     <AnexosPageContext.Provider value={{ anexos, selectedAnexo, formSubmitAction, updateAnexos: dispatch, toastId: TOAST_ID }}>
       <div className='flex flex-col justify-between mb-5 md:flex-row md:items-center md:gap-0'>
@@ -140,11 +154,13 @@ const AnexosPage = (): ReactElement => {
           <div className='flex gap-3'>
             <Button color='primary' onClick={toggleFilters}>{showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}</Button>
             <Button color='secondary' onClick={updateAnexos} isLoading={isRefreshing}>Refrescar anexos</Button>
+            <Button color='success' onClick={exportExcel} isLoading={isExcelLoading}>Exportar Excel</Button>
           </div>
         </div>
       </div>
-      <Table data={anexos} columns={ANEXO_COLUMNS} showFilter={showFilters} pagination={ANEXO_PAGINATION} actions={ANEXO_ACTIONS} />
+      { !isLoading && <Table data={anexos} columns={ANEXO_COLUMNS} showFilter={showFilters} actions={ANEXO_ACTIONS} />}
 
+      <DeleteModal isOpen={isDeleteModalOpen} onClose={toggleDeleteModal} setIsOpen={setIsDeleteModalOpen} />
       <AnexoModal isOpen={showAnexoModal} onClose={toggleAnexoModal} />
       <ImportExcel isOpen={showImportExcelModal} close={importExcel} />
       <Toast id={TOAST_ID} />

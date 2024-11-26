@@ -1,7 +1,7 @@
 {
   "name": "anexos-era",
-  "productName": "era-anexos",
-  "version": "1.0.0",
+  "productName": "era_anexos",
+  "version": "1.4.0",
   "main": "dist-electron/main/index.js",
   "description": "Anexos Desktop App for Era",
   "author": "ERA TI",
@@ -16,22 +16,38 @@
     "dev": "vite",
     "build:main": "tsc && vite build",
     "build": "tsc && vite build && electron-builder",
-    "preview": "vite preview",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "start": "electron-forge start"
+    "preview": "vite preview"
+  },
+  "repository": "https://github.com/sistemasera/anexo_desktop_app",
+  "publish": {
+    "provider": "github",
+    "releaseType": "release",
+    "owner": "sistemasera"
   },
   "build": {
-    "appId": "anexos-era",
+    "appId": "com.era.anexos",
     "asar": true,
     "mac": {
-      "artifactName": "${productName}_${version}.${ext}",
+      "publish": {
+        "provider": "github",
+        "releaseType": "release",
+        "owner": "sistemasera",
+        "repo": "anexo_desktop_app"
+      },
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "artifactName": "${productName}_${version}.${ext}",
+      "icon": "/public/logo-icon.ico"
     },
     "win": {
+      "publish": {
+        "provider": "github",
+        "releaseType": "release",
+        "owner": "sistemasera",
+        "repo": "anexo_desktop_app"
+      },
       "target": [
         {
           "target": "nsis",
@@ -40,7 +56,8 @@
           ]
         }
       ],
-      "artifactName": "${productName}_${version}.${ext}"
+      "artifactName": "${productName}_${version}.${ext}",
+      "icon": "/public/logo-icon.ico"
     },
     "directories": {
       "output": "release/${version}"
@@ -77,12 +94,14 @@
     "@electron-forge/maker-rpm": "^6.1.1",
     "@electron-forge/maker-squirrel": "^6.1.1",
     "@electron-forge/maker-zip": "^6.1.1",
+    "@types/plist": "^3.0.3",
     "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@vitejs/plugin-react": "^3.1.0",
     "autoprefixer": "^10.4.14",
     "electron": "^24.1.1",
+    "electron-builder": "^24.6.4",
     "eslint": "^8.38.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
     "eslint-plugin-import": "^2.27.5",
