@@ -6,30 +6,49 @@ import {
 } from 'electron-updater'
 
 export function update(win: Electron.BrowserWindow, dialog: Electron.Dialog) {
-
   // When set to false, the update download will be triggered through the API
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = true
 
   // start check
-  autoUpdater.on('checking-for-update', function () {})
+  autoUpdater.on('checking-for-update', function () { })
   // update available
   autoUpdater.on('update-available', (info) => {
-    const { releaseName, releaseNotes, version} = info
+    const { releaseName, releaseNotes, version } = info;
     const dialogOpts = {
       type: "info",
-      buttons: ["Actualizar", "Postergar"],
+      buttons: ["Descargar", "Postergar"],
       title: "Actualización disponible",
       message: `Nueva versión ${releaseName} disponible`,
-      detail: "Hay una nueva versión disponible, ¿desea actualizar ahora?"
-    }
+      detail: "¿Desea descargar la actualización ahora?"
+    };
 
     dialog.showMessageBox(dialogOpts).then((returnValue) => {
-      if (returnValue.response === 0) autoUpdater.quitAndInstall()
+      if (returnValue.response === 0) {
+        autoUpdater.downloadUpdate(); // Inicia la descarga
+      } else {
+        console.log('Actualización postergada.');
+      }
     });
+  });
 
-    win.webContents.send('update-can-available', { update: true, version: app.getVersion(), newVersion: version })
-  })
+  autoUpdater.on('update-downloaded', () => {
+    const dialogOpts = {
+      type: "info",
+      buttons: ["Instalar y Reiniciar", "Más tarde"],
+      title: "Actualización descargada",
+      message: "La nueva versión ha sido descargada. ¿Desea instalarla ahora?"
+    };
+
+    dialog.showMessageBox(dialogOpts).then((returnValue) => {
+      if (returnValue.response === 0) {
+        autoUpdater.quitAndInstall(false, true); // Instala y reinicia
+      } else {
+        console.log('Instalación postergada.');
+      }
+    });
+  });
+
   // update not available
   autoUpdater.on('update-not-available', (arg) => {
     win.webContents.send('update-can-available', { update: false, version: app.getVersion(), newVersion: arg?.version })
